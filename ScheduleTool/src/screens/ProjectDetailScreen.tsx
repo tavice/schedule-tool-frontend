@@ -4,7 +4,6 @@ import axios from 'axios';
 import {RouteProp} from '@react-navigation/native';
 
 interface Project {
-  //define the type of project
   id: number;
   name: string;
   location: string;
@@ -14,7 +13,7 @@ interface Project {
 }
 
 interface Props {
-  route: RouteProp<Record<string, {projectId: number}>, 'ProjectDetail'>; //explicitly define the type of route prop
+  route: RouteProp<Record<string, {projectId: number}>, 'ProjectDetail'>;
   navigation: any;
 }
 
@@ -43,6 +42,16 @@ export const ProjectDetailScreen: React.FC<Props> = ({route, navigation}) => {
   useEffect(() => {
     fetchProject();
   }, [fetchProject]);
+
+  const deleteProject = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api/projects/${projectId}/`);
+      navigation.goBack(); // Navigate back to the previous screen after successful deletion
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      // Handle error
+    }
+  };
 
   if (loading) {
     return (
@@ -74,6 +83,11 @@ export const ProjectDetailScreen: React.FC<Props> = ({route, navigation}) => {
         onPress={() =>
           navigation.navigate('ProjectEdit', {projectId: project?.id})
         }
+      />
+      <Button
+        title="Delete Project"
+        color="red"
+        onPress={() => deleteProject()}
       />
     </View>
   );
@@ -108,3 +122,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+export default ProjectDetailScreen;

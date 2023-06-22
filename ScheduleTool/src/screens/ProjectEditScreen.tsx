@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {View, TextInput, Button, StyleSheet} from 'react-native';
 import axios from 'axios';
 import {RouteProp} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 interface Project {
   id: number;
@@ -25,6 +26,7 @@ const ProjectEditScreen: React.FC<Props> = ({route}) => {
   const [description, setDescription] = useState('');
 
   console.log('Project ID:', projectId);
+  const navigation = useNavigation();
 
   const fetchProject = useCallback(async () => {
     try {
@@ -49,18 +51,16 @@ const ProjectEditScreen: React.FC<Props> = ({route}) => {
 
   const updateProject = async () => {
     try {
-      await axios.put(
-        `http://127.0.0.1:8000/api/projects/projects/${projectId}/`,
-        {
-          name,
-          location,
-          start_date: startDate,
-          end_date: endDate,
-          description,
-        },
-      );
+      await axios.put(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
+        name,
+        location,
+        start_date: startDate,
+        end_date: endDate,
+        description,
+      });
       console.log('Project updated');
-      // Handle success or navigate to a different screen
+      //navigate back to the project detail screen
+      navigation.goBack();
     } catch (error) {
       console.error('Error updating project:', error);
       // Handle error

@@ -4,8 +4,10 @@ import {
   Text,
   FlatList,
   StyleSheet,
+  Platform,
   Pressable,
   Button,
+  TouchableNativeFeedback,
 } from 'react-native';
 import axios from 'axios';
 
@@ -23,7 +25,6 @@ interface Props {
 }
 
 const ProjectListScreen: React.FC<Props> = ({navigation}) => {
-  //   console.log('baseUrl:', baseUrl);
   const [projects, setProjects] = useState<Project[]>([]);
 
   const fetchProjects = useCallback(async () => {
@@ -34,7 +35,6 @@ const ProjectListScreen: React.FC<Props> = ({navigation}) => {
     } catch (error) {
       console.log('error is:', error);
       console.error('Error fetching projects:', error);
-      // Handle error
     }
   }, []);
 
@@ -42,22 +42,39 @@ const ProjectListScreen: React.FC<Props> = ({navigation}) => {
     fetchProjects();
   }, [fetchProjects]);
 
-  //navigation:
   const handleProjectPress = (projectId: number) => {
     console.log('i am pressed');
     console.log('Pressed with projectId:', projectId);
     navigation.navigate('ProjectDetail', {projectId});
   };
 
-  const renderProjectItem = ({item}: {item: Project}) => (
-    <Pressable onPress={() => handleProjectPress(item.id)}>
+  const renderProjectItem = ({item}: {item: Project}) => {
+    const content = (
       <View style={styles.projectItem}>
         <Text style={styles.projectName}>{item.name}</Text>
         <Text style={styles.projectLocation}>{item.location}</Text>
         <Text style={styles.projectDescription}>{item.description}</Text>
       </View>
-    </Pressable>
-  );
+    );
+
+    if (Platform.OS === 'android') {
+      return (
+        <TouchableNativeFeedback
+          background={TouchableNativeFeedback.Ripple('blue', false)}
+          onPress={() => handleProjectPress(item.id)}>
+          {content}
+        </TouchableNativeFeedback>
+      );
+    } else {
+      return (
+        <Pressable
+          style={styles.PressableProjectList}
+          onPress={() => handleProjectPress(item.id)}>
+          {content}
+        </Pressable>
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -92,6 +109,13 @@ const styles = StyleSheet.create({
   },
   projectDescription: {
     fontSize: 14,
+  },
+  PressableProjectList: {
+    marginBottom: 12,
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 4,
+    elevation: 2,
   },
 });
 
