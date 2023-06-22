@@ -79,7 +79,14 @@ export const ProjectDetailScreen: React.FC<Props> = ({route, navigation}) => {
       <Text style={styles.projectDetail}>End Date: {project?.end_date}</Text>
       <Text style={styles.projectDetail}>{project?.description}</Text>
       <Button
+        title="See Project Tasks"
+        onPress={() =>
+          navigation.navigate('ActivityList', {projectId: project?.id})
+        }
+      />
+      <Button
         title="Edit Project"
+        color={'#f194ff'}
         onPress={() =>
           navigation.navigate('ProjectEdit', {projectId: project?.id})
         }

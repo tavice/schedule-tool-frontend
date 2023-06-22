@@ -2,16 +2,21 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
+//Import Project Screens
 import ProjectListScreen from './src/screens/ProjectListScreen';
 import {ProjectDetailScreen} from './src/screens/ProjectDetailScreen';
 import ProjectCreateScreen from './src/screens/ProjectCreateScreen';
 import ProjectEditScreen from './src/screens/ProjectEditScreen';
+
+//Import Activity Screens
+import ActivityListScreen from './src/screens/activity/ActivityListScreen';
 
 type RootStackParamList = {
   ProjectList: undefined;
   ProjectDetail: {projectId: number};
   ProjectCreate: undefined;
   ProjectEdit: {projectId: number};
+  ActivityList: {projectId: number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -38,6 +43,11 @@ const App = () => {
         <Stack.Screen
           name="ProjectEdit"
           component={ProjectEditScreen}
+          options={{title: 'Edit Project'}}
+        />
+        <Stack.Screen
+          name="ActivityList"
+          component={ActivityListScreen}
           options={{title: 'Edit Project'}}
         />
       </Stack.Navigator>
