@@ -24,6 +24,7 @@ const ProjectCreateScreen: React.FC<Props> = ({navigation}) => {
       });
       console.log('Project created:', response.data);
       // Handle success or navigate to a different screen
+      navigation.goBack();
     } catch (error) {
       console.error('Error creating project:', error);
       // Handle error

@@ -87,7 +87,7 @@ const ActivityListScreen: React.FC<Props> = ({navigation, route}) => {
       />
 
       <Button
-        title="Create Activity"
+        title="Create Task"
         onPress={() => navigation.navigate('ActivityCreate', {projectId})}
       />
     </View>
