@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
 import {View, TextInput, Button, StyleSheet, Text} from 'react-native';
-//import DateTimePicker from '@react-native-community/datetimepicker';
-import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
-//import {format, parse} from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
 interface Props {
@@ -12,72 +10,55 @@ interface Props {
 
 const ActivityCreateScreen: React.FC<Props> = ({navigation, route}) => {
   const {projectId} = route.params;
-  console.log('Project ID:', projectId);
   const [name, setName] = useState('');
-  //const [startDate, setStartDate] = useState('');
-  //const [endDate, setEndDate] = useState('');
   const [description, setDescription] = useState('');
+  const [dateStart, setDateStart] = useState(new Date());
+  const [dateEnd, setDateEnd] = useState(new Date());
+  const [mode, setMode] = useState<'date' | 'time'>('date');
+  const [show, setShow] = useState(false);
 
-  //================================================================================================
-  //try to add date picker
-  const [date, setDate] = useState(new Date(1598051730000));
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate;
-    setDate(currentDate);
+  const onChangeDateStart = (event: any, selectedDate: Date | undefined) => {
+    const currentDate = selectedDate || dateStart;
+    setShow(false);
+    setDateStart(currentDate);
+  };
+  const onChangeDateEnd = (event: any, selectedDate: Date | undefined) => {
+    const currentDate = selectedDate || dateEnd;
+    setShow(false);
+    setDateEnd(currentDate);
   };
 
-  const showMode = currentMode => {
-    DateTimePickerAndroid.open({
-      value: date,
-      onChange,
-      mode: currentMode,
-      is24Hour: true,
-    });
+  const showMode = (currentMode: 'date' | 'time') => {
+    setShow(true);
+    setMode(currentMode);
   };
 
   const showDatepicker = () => {
     showMode('date');
-    console.log(date);
   };
-
-  const showTimepicker = () => {
-    showMode('time');
-    console.log(date);
-  };
-
-  //================================================================================================
 
   const createActivity = async () => {
     try {
-      //   const formattedStartDate = format(
-      //     parse(startDate, 'MM/dd/yyyy', new Date()),
-      //     'yyyy-MM-dd',
-      //   );
-      //   const formattedEndDate = format(
-      //     parse(endDate, 'MM/dd/yyyy', new Date()),
-      //     'yyyy-MM-dd',
-      //   );
+      const formattedDateStart = dateStart.toISOString().split('T')[0]; // Format the date to YYYY-MM-DD
+      console.log('formattedDate', formattedDateStart);
+      const formattedDateEnd = dateEnd.toISOString().split('T')[0]; // Format the date to YYYY-MM-DD
+      console.log('formattedDate', formattedDateEnd);
       const response = await axios.post(
         'http://127.0.0.1:8000/api/activities/',
         {
-          name: name,
-          //start_date: formattedStartDate,
-          //end_date: formattedEndDate,
+          name,
+          start_date: formattedDateStart,
+          end_date: formattedDateEnd,
           project: projectId,
-          description: description,
+          description,
         },
       );
       console.log('Project created:', response.data);
-      // Handle success or navigate to a different screen
       navigation.goBack();
     } catch (error) {
       console.error('Error creating project:', error);
-      // Handle error
     }
   };
-
-  console.log(name, description);
 
   return (
     <View style={styles.container}>
@@ -87,29 +68,30 @@ const ActivityCreateScreen: React.FC<Props> = ({navigation, route}) => {
         value={name}
         onChangeText={setName}
       />
-      {/* <DateTimePicker
-        style={styles.datePicker}
-        value={startDate}
-        mode="date"
-        placeholder="Start Date (MM/DD/YYYY)"
-        format="MM/DD/YYYY"
-        onDateChange={setStartDate}
-        confirmBtnText="Confirm"
-        cancelBtnText="Cancel"
-      />
-      <DateTimePicker
-        style={styles.datePicker}
-        value={endDate}
-        mode="date"
-        placeholder="End Date (MM/DD/YYYY)"
-        format="MM/DD/YYYY"
-        onDateChange={setEndDate}
-        confirmBtnText="Confirm"
-        cancelBtnText="Cancel"
-      /> */}
-      <Button onPress={showDatepicker} title="Show date picker!" />
-      <Button onPress={showTimepicker} title="Show time picker!" />
-      <Text>selected: {date.toLocaleString()}</Text>
+      <Button onPress={showDatepicker} title="Choose Start Day" />
+      <Text>selected: {dateStart.toISOString().split('T')[0]}</Text>
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={dateStart}
+          mode={mode}
+          is24Hour={true}
+          display="default"
+          onChange={onChangeDateStart}
+        />
+      )}
+      <Button onPress={showDatepicker} title="Choose Finish Day" />
+      <Text>selected: {dateEnd.toISOString().split('T')[0]}</Text>
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={dateEnd}
+          mode={mode}
+          is24Hour={true}
+          display="default"
+          onChange={onChangeDateEnd}
+        />
+      )}
       <TextInput
         style={styles.input}
         placeholder="Description"
@@ -132,13 +114,6 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 40,
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  datePicker: {
-    width: '100%',
     marginBottom: 12,
     paddingHorizontal: 8,
     borderWidth: 1,
